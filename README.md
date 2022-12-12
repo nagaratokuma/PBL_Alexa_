@@ -267,6 +267,5 @@ python3 alexa_bot.py
 ![image](https://user-images.githubusercontent.com/108092676/207037181-59fce91f-a2bd-4106-8617-f86cacd4fc00.png)
 
 ## 「スキルがリクエストに正しく応答できませんでした」となる場合
----
-「スキルがリクエストに正しく応答できませんでした」となってしまう場合は上の方にある「デバイスのログ」のチェックボックスをオンにして、「Directive: SkillDebugger.CaptureDebuggingInfo」をクリックし、赤線を引いたendpointの部分がちゃんとngrokを起動している画面に表示されている転送用URLになっているか確認する。なっていなければエンドポイントの設定を開いてURLを正しく入力し、エンドポイントの保存とモデルのビルドをを実行してビルドが完了するまで待つ。
+「スキルがリクエストに正しく応答できませんでした」となってしまう場合は上の方にある「デバイスのログ」のチェックボックスをオンにして、「Directive: SkillDebugger.CaptureDebuggingInfo」のログを確認する。赤線を引いたendpointの部分がちゃんとngrokを起動している画面に表示されている転送用URLになっているか確認する。なっていなければエンドポイントの変更をやり直してしばらく待つ。(変更が反映されるまで時間がかかる)
 ![skillerror](https://user-images.githubusercontent.com/108092676/207025301-459d9867-425a-4840-99e4-57d2c1630a41.png)
