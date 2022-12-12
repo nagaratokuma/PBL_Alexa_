@@ -30,7 +30,9 @@ tar -xzvf ngrok-v3-stable-linux-amd64.tgz
 下の画像の赤線を引いた部分に表示されているコマンドをコピーしてngrokをダウンロードしたdsbook内で実行する。
 
 ![ngrok-auth](https://user-images.githubusercontent.com/108092676/206976535-8bc6f15e-bb75-40c8-bee9-17cf8e453704.png)
-
+```
+ngrok config add-authtoken XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX #自分のauthtoken
+```
 ### 1.4.ngrokの動作確認
 以下のコマンドを実行するとngrokが実行され、画像のような画面になる。
 
@@ -255,8 +257,16 @@ ngrokを実行しているのと別に新しくコマンドプロンプトを起
 python3 alexa_bot.py
 ```
 
-### 3.スキルの設定でエンドポイントのURLを1.で起動しているngrokに補油辞されている転送用URLに変更し、保存、モデルのビルドを実行する。
+### 3.エンドポイントの設定
+スキルのエンドポイントを1.で起動したngrokに表示されている転送用URLに変更し、エンドポイントを保存、モデルを保存、モデルをビルドをクリックしてモデルのビルドを開始する。  
+(モデルのビルドが完了しても変更が反映されるまで10分程度かかるかも)
+
 
 ### 4.上部のテストタブに移動し、「○○(設定した呼び出し名) を起動」と入力する。
+下の画像のように「こんにちは。対話を始めましょう。」と表示されれば接続は成功である。それ以降は送った内容がそのまま帰ってくる。
+![image](https://user-images.githubusercontent.com/108092676/207037181-59fce91f-a2bd-4106-8617-f86cacd4fc00.png)
 
-### 5. 対話を始めましょうと表示されれば接続成功
+## 「スキルがリクエストに正しく応答できませんでした」となる場合
+---
+「スキルがリクエストに正しく応答できませんでした」となってしまう場合は上の方にある「デバイスのログ」のチェックボックスをオンにして、「Directive: SkillDebugger.CaptureDebuggingInfo」をクリックし、赤線を引いたendpointの部分がちゃんとngrokを起動している画面に表示されている転送用URLになっているか確認する。なっていなければエンドポイントの設定を開いてURLを正しく入力し、エンドポイントの保存とモデルのビルドをを実行してビルドが完了するまで待つ。
+![skillerror](https://user-images.githubusercontent.com/108092676/207025301-459d9867-425a-4840-99e4-57d2c1630a41.png)
