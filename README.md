@@ -127,8 +127,115 @@ pip3 install flask-ask==0.9.7 pyOpenSSL==17.0.0 Werkzeug==0.11.15 itsdangerous==
 ```
 vim alexa_bot.py
 ```
-を入力するとvimを使ってalexa_bot.pyが開かれる。
+を入力するとvimを使ってalexa_bot.pyが開かれる。alexa_bot.pyの内容は以下
 
+<details>
+<summary>alexa_bot.py</summary>
 
+```python
+from flask import Flask
+from flask_ask import Ask, statement, question, session
+import ebdm_system
+
+# Flaskを起動
+app = Flask(__name__)
+ask = Ask(app, '/')
+
+# 対話システムを起動
+system = ebdm_system.EbdmSystem()
+
+# alexaから送られてきたテキストのうち，最も長いもの（＝ユーザの発話）を抜き出すためのメソッド
+def marge_texts(texts):
+    text = ''
+    for t in texts:
+        try:
+            if len(t) >= len(text):
+                text = t
+        except: pass
+    return text
+
+# 起動した時に呼び出されるインテント
+@ask.launch
+def launch():
+    # 発話はなし，session.sessionIdでセッションIDを取得してinitial_messageを返答
+    response = system.initial_message({"utt":"","sessionId":session.sessionId})
+    return question(response['utt'])
+
+# ユーザが話しかけた時に呼び出されるインテント
+# mappingはalexaから送られてきたスロット（情報）をどのような変数名で受け取るかを定義している
+@ask.intent('HelloIntent', mapping={'any_text_a': 'any_text_a', 'any_text_b': 'any_text_b','any_text_c': 'any_text_c', })
+def talk(any_text_a, any_text_b, any_text_c):
+#   受け取ったスロットをまとめて，長いものを抜き出す
+    texts = [ any_text_a, any_text_b, any_text_c ]
+    text = marge_texts(texts)
+#   ユーザ発話を対話システムの応答生成に与える，セッションIDもsession.sessionIdで取得する
+    mes = system.reply({"utt":text,"sessionId":session.sessionId})
+
+#   この発話で終了する時はstatement（この発話でスキルを終了する）で応答
+    if mes['end']: return statement(mes['utt'])
+#   この発話で終了しない場合はquestion（ユーザの応答を待つ）で応答
+    else: return question(mes['utt'])
+
+if __name__ == '__main__':
+#   port8080でflaskのサーバを起動
+    app.run(port=8080)
+```
+</details>
+
+10行目の`system = ebdm_system.EbdmSystem()`で対話システムのクラスをインスタンスとして呼び出している。この部分をタスク対話システムに変えたり雑談対話システムに変えたりすることで任意の対話システムとAmazon Alexaをつなげることができる。  
+よって入力をそのまま返す対話システムにつなげる場合は以下のように変更すればよい。
+
+<details>
+<summary>alexa_bot.py(echo_system)</summary>
+
+```python
+from flask import Flask
+from flask_ask import Ask, statement, question, session
+import echo_system
+
+# Flaskを起動
+app = Flask(__name__)
+ask = Ask(app, '/')
+
+# 対話システムを起動
+system = echo_system.EchoSystem()
+
+# alexaから送られてきたテキストのうち，最も長いもの（＝ユーザの発話）を抜き出すためのメソッド
+def marge_texts(texts):
+    text = ''
+    for t in texts:
+        try:
+            if len(t) >= len(text):
+                text = t
+        except: pass
+    return text
+
+# 起動した時に呼び出されるインテント
+@ask.launch
+def launch():
+    # 発話はなし，session.sessionIdでセッションIDを取得してinitial_messageを返答
+    response = system.initial_message({"utt":"","sessionId":session.sessionId})
+    return question(response['utt'])
+
+# ユーザが話しかけた時に呼び出されるインテント
+# mappingはalexaから送られてきたスロット（情報）をどのような変数名で受け取るかを定義している
+@ask.intent('HelloIntent', mapping={'any_text_a': 'any_text_a', 'any_text_b': 'any_text_b','any_text_c': 'any_text_c', })
+def talk(any_text_a, any_text_b, any_text_c):
+#   受け取ったスロットをまとめて，長いものを抜き出す
+    texts = [ any_text_a, any_text_b, any_text_c ]
+    text = marge_texts(texts)
+#   ユーザ発話を対話システムの応答生成に与える，セッションIDもsession.sessionIdで取得する
+    mes = system.reply({"utt":text,"sessionId":session.sessionId})
+
+#   この発話で終了する時はstatement（この発話でスキルを終了する）で応答
+    if mes['end']: return statement(mes['utt'])
+#   この発話で終了しない場合はquestion（ユーザの応答を待つ）で応答
+    else: return question(mes['utt'])
+
+if __name__ == '__main__':
+#   port8080でflaskのサーバを起動
+    app.run(port=8080)
+```
+</details>
 
 ここでは接続がうまくいっているか簡単にテストするために受け取った入力をそのまま返す echo_system.py を使用する。  
