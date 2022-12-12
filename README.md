@@ -119,7 +119,7 @@ HTTPSを選択し、デフォルトの地域の欄に起動しているngrokの�
 ## 3.プログラムの改良
 ここからはAlexa Developer Consoleからngrokを経由してエンドポイントに送られた情報を受けとって応答を生成できるようにdsbook内のプログラムを改良していく。  
 
-まずは以下のコマンドを実行して必要なライブラリをインストールする。
+まずは以下のコマンドを実行して必要なライブラリをインストールする。インストールする際は`conda activate 仮想環境名`で仮想環境の起動を忘れない。
 ```
 pip3 install flask-ask==0.9.7 pyOpenSSL==17.0.0 Werkzeug==0.11.15 itsdangerous==2.0.1 'cryptography <2.2' MarkupSafe==1.1.0 Jinja2==2.11.3
 ```
@@ -182,8 +182,8 @@ if __name__ == '__main__':
 ```
 </details>
 
-10行目の`system = ebdm_system.EbdmSystem()`で対話システムのクラスをインスタンスとして呼び出している。この部分をタスク対話システムに変えたり雑談対話システムに変えたりすることで任意の対話システムとAmazon Alexaをつなげることができる。  
-よって入力をそのまま返す対話システムにつなげる場合は以下のように変更すればよい。
+10行目の`system = ebdm_system.EbdmSystem()`で対話システムのクラスをインスタンスとして呼び出している。この部分をタスク対話システムに変えたり雑談対話システムに変えたりすることで任意の対話システムとAmazon Alexaをつなげることができる。よって自分たちの作ったモデルをつなげたい場合はここを変更する。  
+ここでは接続がうまくいっているか簡単にテストするために入力をそのまま返す対話システム`echo_bot.py`につなげるので以下のように変更する。
 
 <details>
 <summary>alexa_bot.py(echo_system)</summary>
@@ -191,14 +191,14 @@ if __name__ == '__main__':
 ```python
 from flask import Flask
 from flask_ask import Ask, statement, question, session
-import echo_system
+import echo_system #変更箇所
 
 # Flaskを起動
 app = Flask(__name__)
 ask = Ask(app, '/')
 
 # 対話システムを起動
-system = echo_system.EchoSystem()
+system = echo_system.EchoSystem() #変更箇所
 
 # alexaから送られてきたテキストのうち，最も長いもの（＝ユーザの発話）を抜き出すためのメソッド
 def marge_texts(texts):
@@ -238,4 +238,25 @@ if __name__ == '__main__':
 ```
 </details>
 
-ここでは接続がうまくいっているか簡単にテストするために受け取った入力をそのまま返す echo_system.py を使用する。  
+---
+以上でAlexaとの接続の準備が終わった。
+最後にALexaと正常につながるかテストする。
+
+## 4.接続テスト
+
+### 1.ngrokを起動する
+```
+./ngrok http 8080
+```
+
+### 2.alexa_bot.pyの実行
+ngrokを実行しているのと別に新しくコマンドプロンプトを起動してPBLサーバーに接続したのちdsbookフォルダに移動して`alexa_bot.py`を実行する。(anacondaの仮想環境の起動を忘れない)
+```
+python3 alexa_bot.py
+```
+
+### 3.スキルの設定でエンドポイントのURLを1.で起動しているngrokに補油辞されている転送用URLに変更し、保存、モデルのビルドを実行する。
+
+### 4.上部のテストタブに移動し、「○○(設定した呼び出し名) を起動」と入力する。
+
+### 5. 対話を始めましょうと表示されれば接続成功
